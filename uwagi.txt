@@ -1,0 +1,70 @@
+0. shift/reduce conflicts:  22
+
+2. Brak numerów linii, kontekstu błędu
+
+3. for
+a) czy nie trzeba zmiennej sterującej deklarować wcześniej ? zawsze
+bedzie typu int ?
+
+b) nie można zrobic tego co poniżej ? i w for powinno byc lokalne....
+
+int main()
+{
+    int z = 2;
+    int i = 3;
+    for(i = 0 to 10) {
+        z = z * 2;
+        print(i);
+    }
+    print(i);
+    print(z);
+    return 0;
+}
+
+4. Nie działa przesłanianie ?
+
+int main()
+{
+    int i=2;
+    print(i);
+       {int i=222;
+    i=i+2;
+    print(i);
+    }
+    print(i);
+    return 0;
+}
+
+
+6. nestedFuns.ml i evenMoreNested.ml - to wzajemna rekurencja, a nie
+funkcje zagnieżdżone
+
+7. przykład passArr.ml - tam prawie nic nie ma......
+
+8. Brak sprawdzania statycznego ?
+
+
+int someFunc(int x) {
+    x = x * 4;
+    return x;
+    return "ala";
+}
+
+
+10. tablice - brak przykładów na zwracanie tablic w wyniku,
+przekazywanie jako parametr
+
+
+-----------------------------
+Nie będzie TypeCheckera
+
+
+StorableVoid - wartość zwracana przez return
+
+- sprawdzanie return/break/continue w while i propagacja tej informacji
+
+- tablica powinna znać swój wymiar i typ wartości
+
+- parametry nie mogą być typu void, nazwy parametrów nie powinny się powtarzać
+
+

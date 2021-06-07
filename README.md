@@ -1,2 +1,0 @@
-# interpreter
-# interpreter2

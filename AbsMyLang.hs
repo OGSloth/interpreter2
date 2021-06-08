@@ -30,11 +30,10 @@ data Stmt
     | ConstDecl Type [Item]
     | Ass Ident Expr
     | ArrAss Ident [Expr] Expr
-    | TupAss Ident Expr Expr
     | Ret Expr
     | VRet
     | Cond Expr Stmt
-    | CondElse Expr Stmt Stmt
+    | CondElse Expr Block Block
     | While Expr Stmt
     | For Ident Expr Expr Stmt
     | Print [Expr]
@@ -49,7 +48,7 @@ data Item = NoInit Ident | Init Ident Expr | ArrayInit Ident [Expr]
 data Type = SimpleType SType | CollectionType CType
   deriving (C.Eq, C.Ord, C.Show, C.Read)
 
-data CType = Array SType | Tuple [Type]
+data CType = Array SType
   deriving (C.Eq, C.Ord, C.Show, C.Read)
 
 data SType = Int | Str | Bool | Void
@@ -63,7 +62,6 @@ data Expr
     | EApp Ident [Expr]
     | EString String
     | EArr Ident [Expr]
-    | ETup Ident Expr
     | Neg Expr
     | Not Expr
     | EMul Expr MulOp Expr

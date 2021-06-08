@@ -1,6 +1,7 @@
 module EnvStateHandler where
 
 import Data.Map as Map
+import Data.List as L
 
 import Control.Monad.State
 import Control.Monad.Except
@@ -93,6 +94,13 @@ validateIdent i = do
       throwError $ "Already declared" ++ showIdent i
     Nothing -> return ()
 
+validateLoopAssign :: Stmt -> String -> EnvState ()
+validateLoopAssign (Decl _ _) loopType =
+  throwError $ "Cannot declare variables inside the non block: " ++ loopType ++ " statement"
+validateLoopAssign (ConstDecl _ _) loopType =
+  throwError $ "Cannot declare variables inside the non block: " ++ loopType ++ " statement"
+validateLoopAssign _ _ = return ()
+
 
 newloc :: EnvState Loc
 newloc = do
@@ -112,16 +120,54 @@ getVal i = do
         Just val -> return val
         Nothing -> throwError $ show "No val"
     Nothing ->
-      throwError $ show "Undeclared val"
+      throwError $ "Undeclared val" ++ showIdent i
 
 getLoc :: Ident -> EnvState Loc
 getLoc i = do
   env <- ask
   case Map.lookup i env of
     Just loc -> return loc
-    Nothing -> throwError $ show "Undeclared var"
+    Nothing -> throwError $ "Undeclared var" ++ showIdent i
 
 isReturnOnF :: EnvState Bool
 isReturnOnF = do
   (_, val) <- getVal (Ident "__returnValue__")
   return (val /= Undefined)
+
+validateBlock :: Block -> EnvState ()
+validateBlock (Bloc b) = do
+  case getDuplicates (validateBlockFoo b []) [] [] of
+    [] -> return ()
+    l -> throwError $ "Following variables are declared more than once: " ++ (asList l)
+
+asList :: [String] -> String
+asList ss = (L.intercalate "," ss)
+
+memberL :: (Eq a) => a -> [a] -> Bool
+memberL x [] = False
+memberL x (y:ys) | x == y = True
+                | otherwise = memberL x ys
+
+getDuplicates :: [String] -> [String] -> [String] -> [String]
+getDuplicates [] _ non = non
+getDuplicates (i:is) prev non = 
+  case (memberL i prev, memberL i is, memberL i non) of 
+    (True, _, False) -> getDuplicates is (i:prev) (i:non)
+    (_, True, False) -> getDuplicates is (i:prev) (i:non)
+    (_, _, _) -> getDuplicates is (i:prev) non
+
+validateBlockFoo :: [Stmt] -> [String] -> [String]
+validateBlockFoo [] acc = acc
+validateBlockFoo ((Decl _ inits):ss) acc = validateBlockFoo ss ((getIdents inits) ++ acc)
+validateBlockFoo ((ConstDecl _ inits):ss) acc = validateBlockFoo ss ((getIdents inits) ++ acc)
+validateBlockFoo (_:ss) acc = validateBlockFoo ss acc
+
+getIdents :: [Item] -> [String]
+getIdents i = getIdentsFoo i []
+
+getIdentsFoo :: [Item] -> [String] -> [String]
+getIdentsFoo [] acc = acc
+getIdentsFoo ((NoInit (Ident i)):is) acc = getIdentsFoo is (i:acc)
+getIdentsFoo ((Init (Ident i) _):is) acc = getIdentsFoo is (i:acc)
+getIdentsFoo ((ArrayInit (Ident i) _):is) acc = getIdentsFoo is (i:acc)
+

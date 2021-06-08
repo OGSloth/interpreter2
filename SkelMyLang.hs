@@ -41,11 +41,10 @@ transStmt x = case x of
   AbsMyLang.ConstDecl type_ items -> failure x
   AbsMyLang.Ass ident expr -> failure x
   AbsMyLang.ArrAss ident exprs expr -> failure x
-  AbsMyLang.TupAss ident expr1 expr2 -> failure x
   AbsMyLang.Ret expr -> failure x
   AbsMyLang.VRet -> failure x
   AbsMyLang.Cond expr stmt -> failure x
-  AbsMyLang.CondElse expr stmt1 stmt2 -> failure x
+  AbsMyLang.CondElse expr block1 block2 -> failure x
   AbsMyLang.While expr stmt -> failure x
   AbsMyLang.For ident expr1 expr2 stmt -> failure x
   AbsMyLang.Print exprs -> failure x
@@ -67,7 +66,6 @@ transType x = case x of
 transCType :: AbsMyLang.CType -> Result
 transCType x = case x of
   AbsMyLang.Array stype -> failure x
-  AbsMyLang.Tuple types -> failure x
 
 transSType :: AbsMyLang.SType -> Result
 transSType x = case x of
@@ -85,7 +83,6 @@ transExpr x = case x of
   AbsMyLang.EApp ident exprs -> failure x
   AbsMyLang.EString string -> failure x
   AbsMyLang.EArr ident exprs -> failure x
-  AbsMyLang.ETup ident expr -> failure x
   AbsMyLang.Neg expr -> failure x
   AbsMyLang.Not expr -> failure x
   AbsMyLang.EMul expr1 mulop expr2 -> failure x

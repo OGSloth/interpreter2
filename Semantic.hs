@@ -53,7 +53,7 @@ runMain = do
   env <- ask
   (_ , StorableFun (_, retType, _, block)) <- getVal (Ident "main")
   functionsMeetUp -- ToDo: Check if works properly..Seems fine, but it is weird
-  newEnv <- interprateBlock block
+  newEnv <- interprateBlockStart block
   (_, mainRet) <- getVal (Ident "__returnValue__")
   if allTypesMatch retType mainRet
     then local (const newEnv) (return ())
@@ -62,6 +62,11 @@ runMain = do
       StorableVoid -> throwError "Main did not retruned value" 
       _ -> throwError "Main return value does not match"
 
+interprateBlockStart :: Block -> EnvState Env
+interprateBlockStart (Bloc b) = do
+  validateBlock (Bloc b)
+  interprateBlock (Bloc b)
+  ask
 
 interprateBlock :: Block -> EnvState Env
 interprateBlock (Bloc []) = do
@@ -82,7 +87,7 @@ declare _ _ [] = ask
 declare isReadOnly (SimpleType sType) (NoInit i : is) = do
   env <- ask
   state <- get
-  validateIdent i
+--  validateIdent i
   loc <- newloc
   case sType of
     Int -> modify $ Map.insert loc (isReadOnly, UndeclaredInt)
@@ -94,7 +99,7 @@ declare isReadOnly (SimpleType sType) (NoInit i : is) = do
 declare isReadOnly (SimpleType sType) (Init i e : is) = do
   env <- ask
   state <- get
-  validateIdent i
+--  validateIdent i
   loc <- newloc
   evalved <- evalExp e
   if doesTypesMatch sType evalved
@@ -102,7 +107,7 @@ declare isReadOnly (SimpleType sType) (Init i e : is) = do
     else throwError $ "Types do not match" ++ showIdent i
   local (const $ Map.insert i loc env) (declare isReadOnly (SimpleType sType) is)
 
-declare isReadOnly (SimpleType _) (ArrayInit _ [] : is) = throwError "Cannot intialize an empty array"
+declare isReadOnly (SimpleType _) (ArrayInit i [] : is) = throwError $ "Cannot intialize an empty array" ++ showIdent i
 declare isReadOnly (SimpleType sType) (ArrayInit i e : is) = do
   env <- ask
   state <- get
@@ -149,7 +154,7 @@ iterativeFill int arr typeOf = StorableArr $ Prelude.map (iterativeFillFoo int t
 interprateStmt :: Stmt -> EnvState Env
 interprateStmt Empty = ask
 
-interprateStmt (BStmt blok) = interprateBlock blok
+interprateStmt (BStmt blok) = interprateBlockStart blok
 
 interprateStmt (Decl varType items) = declare False varType items
 interprateStmt (ConstDecl varType items) = declare True varType items
@@ -187,20 +192,22 @@ interprateStmt VRet = do
 
 interprateStmt (Cond e st) = do
   evalved <- evalExp e
+  validateLoopAssign st "If"
   case evalved of
     (StorableBool True) -> interprateStmt st
     (StorableBool False) -> ask
     _ -> throwError "If condition must be a boolean"
 
-interprateStmt (CondElse e stT stF) = do
+interprateStmt (CondElse e blT blF) = do
   evalved <- evalExp e
   case evalved of
-    (StorableBool True) -> interprateStmt stT
-    (StorableBool False) -> interprateStmt stF
+    (StorableBool True) -> interprateBlockStart blT
+    (StorableBool False) -> interprateBlockStart blF
     _ -> throwError "If condition must be a boolean"
 
 interprateStmt (While e s) = do
   evalved <- evalExp e
+  validateLoopAssign s "While"
   case evalved of
     (StorableBool True) -> do
       interprateStmt s
@@ -236,16 +243,15 @@ interprateStmt (Print (e:ex)) = do
 
 interprateStmt (For i e1 e2 st) = do
   env <- ask
-  validateIdent i
   ev1 <- evalExp e1
   ev2 <- evalExp e2
   loc <- newloc
+  validateLoopAssign st "For"
   case (ev1, ev2) of
     (StorableInt int1, StorableInt int2) -> do
       modify $ Map.insert loc (True, ev1)
       newEnv <- local (const $ Map.insert i loc env) (execForLoop i ev2 st)
-      modify $ Map.delete loc
-      return (Map.delete i newEnv)
+      return env
     (_, _) -> throwError $ "For inputs must be the integer type" ++ showIdent i
 
 interprateStmt (SExp e) = do
@@ -317,7 +323,7 @@ evalExp (EApp i es) = do
   if length evalved == length args
     then do
       newFEnv <- local (const fEnv) (fillFunEnv fEnv args evalved)
-      local (const newFEnv) (interprateBlock bloc) -- ToDo: Validate if newFEnv or just env(?)
+      local (const newFEnv) (interprateBlockStart bloc) -- ToDo: Validate if newFEnv or just env(?)
       (_, ret) <- getVal (Ident "__returnValue__")
       local (const env) ask
       if allTypesMatch fType ret

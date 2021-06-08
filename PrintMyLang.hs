@@ -148,11 +148,10 @@ instance Print AbsMyLang.Stmt where
     AbsMyLang.ConstDecl type_ items -> prPrec i 0 (concatD [doc (showString "const"), prt 0 type_, prt 0 items, doc (showString ";")])
     AbsMyLang.Ass id_ expr -> prPrec i 0 (concatD [prt 0 id_, doc (showString "="), prt 0 expr, doc (showString ";")])
     AbsMyLang.ArrAss id_ exprs expr -> prPrec i 0 (concatD [prt 0 id_, doc (showString "["), prt 0 exprs, doc (showString "]"), doc (showString "="), prt 0 expr, doc (showString ";")])
-    AbsMyLang.TupAss id_ expr1 expr2 -> prPrec i 0 (concatD [prt 0 id_, doc (showString "$"), prt 0 expr1, doc (showString "$"), doc (showString "="), prt 0 expr2, doc (showString ";")])
     AbsMyLang.Ret expr -> prPrec i 0 (concatD [doc (showString "return"), prt 0 expr, doc (showString ";")])
     AbsMyLang.VRet -> prPrec i 0 (concatD [doc (showString "return"), doc (showString ";")])
     AbsMyLang.Cond expr stmt -> prPrec i 0 (concatD [doc (showString "if"), doc (showString "("), prt 0 expr, doc (showString ")"), prt 0 stmt])
-    AbsMyLang.CondElse expr stmt1 stmt2 -> prPrec i 0 (concatD [doc (showString "if"), doc (showString "("), prt 0 expr, doc (showString ")"), prt 0 stmt1, doc (showString "else"), prt 0 stmt2])
+    AbsMyLang.CondElse expr block1 block2 -> prPrec i 0 (concatD [doc (showString "if"), doc (showString "("), prt 0 expr, doc (showString ")"), prt 0 block1, doc (showString "else"), prt 0 block2])
     AbsMyLang.While expr stmt -> prPrec i 0 (concatD [doc (showString "while"), doc (showString "("), prt 0 expr, doc (showString ")"), prt 0 stmt])
     AbsMyLang.For id_ expr1 expr2 stmt -> prPrec i 0 (concatD [doc (showString "for"), doc (showString "("), prt 0 id_, doc (showString "="), prt 0 expr1, doc (showString "to"), prt 0 expr2, doc (showString ")"), prt 0 stmt])
     AbsMyLang.Print exprs -> prPrec i 0 (concatD [doc (showString "print"), doc (showString "("), prt 0 exprs, doc (showString ")"), doc (showString ";")])
@@ -187,7 +186,6 @@ instance Print [AbsMyLang.Type] where
 instance Print AbsMyLang.CType where
   prt i = \case
     AbsMyLang.Array stype -> prPrec i 0 (concatD [prt 0 stype, doc (showString "[]")])
-    AbsMyLang.Tuple types -> prPrec i 0 (concatD [doc (showString "$"), prt 0 types, doc (showString "$")])
 
 instance Print AbsMyLang.SType where
   prt i = \case
@@ -205,7 +203,6 @@ instance Print AbsMyLang.Expr where
     AbsMyLang.EApp id_ exprs -> prPrec i 6 (concatD [prt 0 id_, doc (showString "("), prt 0 exprs, doc (showString ")")])
     AbsMyLang.EString str -> prPrec i 6 (concatD [prt 0 str])
     AbsMyLang.EArr id_ exprs -> prPrec i 6 (concatD [prt 0 id_, doc (showString "["), prt 0 exprs, doc (showString "]")])
-    AbsMyLang.ETup id_ expr -> prPrec i 6 (concatD [prt 0 id_, doc (showString "->"), prt 0 expr])
     AbsMyLang.Neg expr -> prPrec i 5 (concatD [doc (showString "-"), prt 6 expr])
     AbsMyLang.Not expr -> prPrec i 5 (concatD [doc (showString "!"), prt 6 expr])
     AbsMyLang.EMul expr1 mulop expr2 -> prPrec i 4 (concatD [prt 4 expr1, prt 0 mulop, prt 5 expr2])

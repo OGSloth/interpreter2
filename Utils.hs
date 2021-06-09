@@ -49,7 +49,7 @@ checkForErrorType val acc = case val of
 modifiedArr :: Storable -> [Storable] -> Storable -> Storable
 modifiedArr currVal [] val = if doesAssTypesMatch val currVal 
   then val
-  else ErrorType "Missed matcht types in array assign"
+  else ErrorType "Missed matched types in array assign"
 
 modifiedArr arr (StorableInt int : es) val =
   case arr of 

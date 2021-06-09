@@ -1,8 +1,8 @@
 0. shift/reduce conflicts:  22
 -- Zredukowałem liczbę konfliktów do zera
 -- Aby to uzyskać if/else działa wyłącznie na blokach
--- Jest to rozwiązanie sugerowane przez wiele parserów języków programowania
-
+-- (Jest to rozwiązanie sugerowane przez wiele parserów języków programowania)
+-- If, for, while obsługują pojedyńczy Statement
 
 1. break poza pętlą kończy się komunikatem: "Main return value does not match"
 --Komunikat o zakończeniu maina po przez "break" uzupełniony
@@ -13,15 +13,15 @@
 3. for
 a) czy nie trzeba zmiennej sterującej deklarować wcześniej ? zawsze
 bedzie typu int ?
--- Częściowo omówione podczas prezentacji - Zawsze typ int, przysłaniający wartość
+-- Częściowo omówione podczas prezentacji - Zawsze typ int, deklaracja odbywa się w środowisku pętli
 
 b) nie można zrobic tego co poniżej ? i w for powinno byc lokalne....
 -- Uzupełnione - Przysłanianie w pętli for działa popraniwe
--- Uzyskane poprzez przekazywanie środkowiska, lecz nie stanu
+-- Uzyskane poprzez użycie lokalnego środowiska
 -- Potencjalne deklaracje są sprawdzane przed wykonaniem bloku
--- Blok upewnia się co do braku ponownej deklaracji zmiennych
--- Deklaracje w For/While/If interpretujących pojedyńczy Statement uniemużliwiają deklarację
--- (Języki per se umożliwiają to, lecz wszelkie lintery definitywnie zniechęcają)
+-- Blok upewnia się przed wykonaniem czy nie ma wtórnej deklaracji zmiennej
+-- Pojedyńczy statement jako deklaracja w For/While/If uniemożliwiona
+-- (Niektóre języki umożliwiają to, lecz wszelkie lintery zwracają błędy)
 
 int main()
 {
@@ -67,7 +67,8 @@ funkcje zagnieżdżone
 -- Nowe testy pod tą samą nazwą
 
 7. przykład passArr.ml - tam prawie nic nie ma......
--- Przykład uzupełniony wraz z przekazywaniem tablicy
+-- Przykład uzupełniony
+-- Uzupełnione w kodzie przekazywanie oraz zwracanie przez funkcje tablicy
 
 8. Brak sprawdzania statycznego ?
 -- Omówione podczas prezentacji - Wykonywanie bloku jest zakończone po napotkaniu pierwszego wystąpienia "return"
@@ -81,11 +82,13 @@ int someFunc(int x) {
 
 9. Wypisywanie
 print("Time two\n");
--- Komunikaty są wypisywane poprawne, nie jako haskellowe stringi
+-- Komunikaty są wypisywane poprawne (Ze znakiem nowej lini), nie jako haskellowe stringi
 
 10. tablice - brak przykładów na zwracanie tablic w wyniku,
 przekazywanie jako parametr
-
+-- Uzupełnione
+-- Przekazywanie: passArr.ml
+-- Zwracanie: returnArray.ml 
 
 -----------------------------
 Nie będzie TypeCheckera
@@ -95,7 +98,7 @@ StorableVoid - wartość zwracana przez return
 -- Brak zmian - Działa poprawnie
 
 funkcje są wzajemnie rekurencyjne - nie powinno być nadpisywania funkcji
--- Brak zmian - Nadpisywanie uniemożliwione poprzez sprawdzanie repetywności nazw
+-- Nadpisywanie uniemożliwione poprzez sprawdzanie repetywności nazw
 
 - sprawdzanie return/break/continue w while i propagacja tej informacji
 -- Poprawione, następuje propagacja informacji

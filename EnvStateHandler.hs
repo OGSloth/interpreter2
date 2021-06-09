@@ -68,6 +68,7 @@ showIdent (Ident a) = " (Variable: " ++ a ++ ")"
 showEVar (EVar i) = showIdent i
 
 allTypesMatch (SimpleType t1) = doesTypesMatch t1
+allTypesMatch (CollectionType (Array t1)) = arrTypesMatch t1
 
 doesTypesMatch t1 t2 = case (t1, t2) of
   (Int, StorableInt _) -> True

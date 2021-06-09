@@ -52,7 +52,7 @@ runMain :: EnvState ()
 runMain = do
   env <- ask
   (_ , StorableFun (_, retType, _, block)) <- getVal (Ident "main")
-  functionsMeetUp -- ToDo: Check if works properly..Seems fine, but it is weird
+  functionsMeetUp
   newEnv <- interprateBlockStart block
   (_, mainRet) <- getVal (Ident "__returnValue__")
   if allTypesMatch retType mainRet
@@ -87,7 +87,6 @@ declare _ _ [] = ask
 declare isReadOnly (SimpleType sType) (NoInit i : is) = do
   env <- ask
   state <- get
---  validateIdent i
   loc <- newloc
   case sType of
     Int -> modify $ Map.insert loc (isReadOnly, UndeclaredInt)
@@ -99,7 +98,6 @@ declare isReadOnly (SimpleType sType) (NoInit i : is) = do
 declare isReadOnly (SimpleType sType) (Init i e : is) = do
   env <- ask
   state <- get
---  validateIdent i
   loc <- newloc
   evalved <- evalExp e
   if doesTypesMatch sType evalved
@@ -111,7 +109,6 @@ declare isReadOnly (SimpleType _) (ArrayInit i [] : is) = throwError $ "Cannot i
 declare isReadOnly (SimpleType sType) (ArrayInit i e : is) = do
   env <- ask
   state <- get
-  validateIdent i
   loc <- newloc
   evalved <- mapM evalExp e
   if checkList evalved
@@ -120,6 +117,16 @@ declare isReadOnly (SimpleType sType) (ArrayInit i e : is) = do
       modify $ Map.insert loc (False, Undefined)
       local (const $ Map.insert i loc env) (fillArray sType i evalved)
     else throwError $ "Array parameter are not integer type" ++ (showIdent i)
+
+declare isReadOnly (CollectionType (Array t)) (Init i e : is) = do
+  env <- ask
+  state <- get
+  loc <- newloc
+  evalved <- evalExp e
+  if arrTypesMatch t evalved
+    then modify $ Map.insert loc (isReadOnly, evalved)
+    else throwError $ "Types do not match" ++ showIdent i
+  local (const $ Map.insert i loc env) (declare isReadOnly (CollectionType (Array t)) is)
 
 fillArray :: SType -> Ident -> [Storable] -> EnvState Env
 fillArray sType i [] = ask
@@ -334,7 +341,7 @@ evalExp (EApp i es) = do
   if length evalved == length args
     then do
       newFEnv <- local (const fEnv) (fillFunEnv fEnv args evalved)
-      local (const newFEnv) (interprateBlockStart bloc) -- ToDo: Validate if newFEnv or just env(?)
+      local (const newFEnv) (interprateBlockStart bloc)
       (_, ret) <- getVal (Ident "__returnValue__")
       local (const env) ask
       if allTypesMatch fType ret

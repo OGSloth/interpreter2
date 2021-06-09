@@ -3,6 +3,6 @@ int someFunction(int a, int b, string a){
 }
 
 int main(){
-  print(someFunction(0,0,"a");
+  print(someFunction(0,0,"a"));
   return 0;
 }

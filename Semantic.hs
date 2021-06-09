@@ -305,6 +305,17 @@ fillFunEnv fEnv (Argum (SimpleType t) i : as) (e:es) = do
       local (const newEnv) (fillFunEnv fEnv as es)
     else
       throwError $ "Function arguments does not match types" ++ showIdent i
+
+fillFunEnv fEnv (Argum (CollectionType (Array arrT)) i : as) (e:es) = do
+  env <- ask
+  loc <- newloc
+  if arrTypesMatch arrT e
+    then do
+      let newEnv = Map.insert i loc env
+      modify $ Map.insert loc (False, e)
+      local (const newEnv) (fillFunEnv fEnv as es)
+    else
+      throwError $ "Function arguments does not match types" ++ showIdent i
   
 evalExp :: Expr -> EnvState Storable
 evalExp (ELitInt integer) = return (StorableInt integer)

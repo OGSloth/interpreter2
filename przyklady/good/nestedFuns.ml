@@ -1,28 +1,12 @@
-int a(int c){
-    print("Co jest3");
-    return c / 2;
+int plustimestwo (int a, int b){ 
+  return double(a) + b;
 }
 
-int b(int c) {
-    print("Co jest4");
-    return a(c - 1);
+int double(int a){
+  return a * 2;
 }
-
-
-int s(int l){
-    int sum = 0;
-    print("Co jest");
-    for(i = 0 to l){
-        print("Co jest2");
-        sum = sum + a(i) + b(i);
-    }
-    return sum;
-}
-
 
 int main() {
-    print(s(5));
-    return 0;
+  print(plustimestwo(2, 2));
+  return 0;
 }
-
-

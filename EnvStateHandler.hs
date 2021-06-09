@@ -76,6 +76,20 @@ doesTypesMatch t1 t2 = case (t1, t2) of
   (Void, StorableVoid) -> True
   (_, _) -> False
 
+doesTypesMatch2 t1 t2 = case (t1, t2) of
+  (Int, StorableInt _) -> True
+  (Int, UndeclaredInt) -> True
+  (Str, StorableString _) -> True
+  (Str, UndeclaredString) -> True
+  (Bool, StorableBool _) -> True
+  (Bool, UndeclaredBool) -> True
+  (_, _) -> False
+
+arrTypesMatch t1 t2 =
+  case (t1, t2) of
+    (t12, StorableArr t) -> arrTypesMatch t12 (head t)
+    (t12, t22) -> doesTypesMatch t12 t22
+
 doesAssTypesMatch t1 t2 = case (t1, t2) of
   (StorableInt _, StorableInt _) -> True
   (StorableInt _, UndeclaredInt) -> True

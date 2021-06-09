@@ -1,34 +1,30 @@
-int a(int c){
-    print("a - call");
-    if(c <= 0)
-	return 0;
-
-    return s(c - 2);
+string appendNL(string a){
+  return a + "\n";
 }
 
-int b(int c) {
-    print("b - call");
-    if(c <= 0)
-	return 0;
-    return s(c - 1);
+void printArr(string[] arr, int size) {
+  for(i = 0 to size) {
+     printNL(arr[i]);
+  }
+  return;
 }
-
-
-int s(int l){
-    print("s - call");
-    int sum = 0;
-    if(l <= 0)
-	return 0;
-    for(i = 0 to l){
-        sum = sum + a(i) + b(i);
-    }
-    return sum;
-}
-
 
 int main() {
-    print(s(5));
-    return 0;
+  string myWord[6];
+  myWord[0] = "m";
+  myWord[1] = "y";
+  myWord[2] = "W";
+  myWord[3] = "o";
+  myWord[4] = "r";
+  myWord[5] = "d";
+  printArr(myWord, 6);
+  return 0;
+}
+
+
+void printNL(string a){
+  print(appendNL(a));
+  return;
 }
 
 
